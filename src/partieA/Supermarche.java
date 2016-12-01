@@ -3,6 +3,7 @@ package partieA;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 /**
  * Created by Safiah on 29/11/2016.
@@ -15,6 +16,7 @@ public class Supermarche {
     public final Map <String,Integer> TPS = new HashMap<String, Integer>();
     public final int TAILLE_TAPIS = 10;
     public static final int NB_CHARIOTS = 10;
+    public static Semaphore chariots;
 
 
     public enum Articles{
@@ -25,6 +27,8 @@ public class Supermarche {
 
     public Supermarche(){
         createMap();
+        this.chariots = new Semaphore(NB_CHARIOTS);
+
     }
 
 
@@ -39,6 +43,6 @@ public class Supermarche {
 
     public static void main(String [] args){
 
-        System.out.println("o");
+        //System.out.println("o");
     }
 }

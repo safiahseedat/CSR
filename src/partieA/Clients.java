@@ -1,5 +1,4 @@
 package partieA;
-import partieA.TasChariots;
 
 import java.util.*;
 
@@ -17,7 +16,10 @@ public class Clients {
 
     public void prendreArticle(Supermarche.Articles a){
 
+    }
 
+    public void prendreChariot() throws InterruptedException {
+        Supermarche.chariots.acquire();
     }
 
 
