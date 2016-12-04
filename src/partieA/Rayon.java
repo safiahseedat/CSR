@@ -6,26 +6,36 @@ package partieA;
 public class Rayon {
 
     private Supermarche.Articles articles;
-    private int Nbexemplaire;
+    private static int Nbexemplaire;
     private int taille;
 
-    public Rayon(){
+    public Rayon(Supermarche.Articles a, int n, int t){
+        this.articles =a;
+        this.Nbexemplaire=n;
+        this.taille =t;
     }
 
     public int getNbexemplaire(){
         return this.Nbexemplaire;
     }
 
-    public int getTaille(){
-        return this.taille;
-    }
-     public void prendreArticle(){
-         taille --;
+    synchronized public static void prendreArticle(Clients client) throws InterruptedException {
+        while(Nbexemplaire == 0){
+            client.wait();
+        }
+        System.out.println("Client "+client.getName()+" : Je prends un article");
+        Nbexemplaire--;
+     }
+
+     public void deposerArticles(int i){
+         Nbexemplaire+=i;
      }
 
 
 
-    public Supermarche.Articles getArticles(){
-        return this.articles;
+    public  Supermarche.Articles getArticles(){
+        return articles;
     }
+
+
 }
