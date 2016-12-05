@@ -3,6 +3,7 @@ package partieA;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.Thread.sleep;
 
@@ -15,92 +16,79 @@ public class Caisse {
     public static int tapis;
     private static Caisse INSTANCE = new Caisse();
     private static boolean clientsuivant;
-    private static boolean finscan;
-    public int articlesTapis;
+    private static boolean finscan = false;
+    public int articlesTapis = 0;
 
 
-    private Caisse(){
-        caisselibre= true;
-       // tapis = new ArrayList<Boolean>(Supermarche.TAILLE_TAPIS);
+    private Caisse() {
+        caisselibre = true;
+        //tapis = new ArrayList<Boolean>(Supermarche.TAILLE_TAPIS);
         tapis = Supermarche.TAILLE_TAPIS;
     }
 
-    public static Caisse getInstance(){
+    public static Caisse getInstance() {
         return INSTANCE;
     }
 
-   synchronized public void prendreCaisse(){
-       caisselibre = false;
-       notifyAll();
-    }
-
-    synchronized public boolean etatCaisse(){
-        return caisselibre;
-    }
-
-    public void libererCaisse(){
-        caisselibre=true;
+    synchronized public void prendreCaisse() {
+        caisselibre = false;
         notifyAll();
     }
 
+    synchronized public boolean etatCaisse() {
+        return caisselibre;
+    }
+
+    synchronized public void libererCaisse() {
+        caisselibre = true;
+        notifyAll();
+    }
 
 
     synchronized public void scanner() throws InterruptedException {
         finscan = false;
-        while(!clientsuivant){
-            articlesTapis --;
-            System.out.println("Le caissier a scanné un article");
+        if (articlesTapis > 0) {
+            System.out.println("il y a " + articlesTapis + " sur le tapis");
             Thread.sleep(30);
+            articlesTapis--;
+            System.out.println("Le caissier a scanné un article");
             notifyAll();
-            /*for(int i=0; i<tapis.size();i++){
-                tapis.set(i,false);
-                notifyAll();
-                sleep(30);
-            }*/
+        } else if (clientsuivant) {
+            finscan = true;
+            notifyAll();
         }
-        finscan= true;
-        notifyAll();
     }
 
     synchronized public void passerArticles(Clients client) throws InterruptedException {
+        System.out.println(etatCaisse());
         System.out.println(client.getName() + " J'ai " + client.chariot + " articles dans mon chariot");
-        articlesTapis = 0;
-        clientsuivant= false;
+        clientsuivant = false;
         //Collections.fill(tapis, Boolean.FALSE);
-        while(!clientsuivant) {
-            //for (int i = 0; i < tapis.size(); i++) {
-                while (articlesTapis >= tapis) {
-                   System.out.println(client.getName() + " Le tapis est plein, j'attend");
-                    client.wait();
+        while (!clientsuivant) {
+            while (articlesTapis >= tapis) {
+                System.out.println(client.getName() + " Le tapis est plein, j'attend");
+                this.wait();
+            }
+            if (client.chariot == 0) {
+                System.out.println(client.getName() + " J'ai déposé tous mes articles");
+                while (articlesTapis > 0) {
+                    this.wait();
                 }
-                if (client.chariot == 0) {
-                    clientsuivant = true;
-                    notifyAll();
-                   System.out.println(client.getName() + " J'ai déposé tous mes articles");
+                clientsuivant = true;
+                notifyAll();
+            } else {
+                client.chariot--;
+                System.out.println(client.getName() + " J'ai " + client.chariot + " articles dans mon chariot");
+                articlesTapis++;
+                System.out.println("il y a " + articlesTapis + " articles sur le tapis moi");
+                notifyAll();
+                sleep(20);
+            }
 
-                    while(!finscan){
-                        client.wait();
-                    }
-                    client.payer();
-
-
-                } else {
-                    client.chariot--;
-                    System.out.println(client.getName() + " J'ai " + client.chariot + " articles dans mon chariot");
-                    articlesTapis ++;
-                    System.out.println("il y a " + articlesTapis + " articles sur le tapis");
-                    sleep(20);
-                }
-
-           // }
+            // }
         }
 
     }
-
-
-
-
-
 
 
 }

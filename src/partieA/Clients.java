@@ -80,7 +80,7 @@ public class Clients extends Thread{
         return l;
     }
 
-    public void payer() throws InterruptedException {
+    synchronized public void payer() throws InterruptedException {
         sleep(40);
         System.out.println(this.getName() +" : Je paie mes articles");
         caisse.libererCaisse();
@@ -89,22 +89,18 @@ public class Clients extends Thread{
         rendreChariot();
     }
 
-    public void run(){
+   synchronized public void run(){
         try {
             prendreChariot();
             System.out.println(this.getName() +" : J'ai pris mon chariot");
             faireCourses();
             System.out.println("fin des courses");
             passerEnCaisse();
-            System.out.println("test2");
             payer();
-            System.out.println("test3");
 
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-
 
     }
 }
